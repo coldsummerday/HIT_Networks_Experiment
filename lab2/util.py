@@ -21,7 +21,7 @@ SEQ_LENGTH = 10
 
 MAX_TIME = 3
 
-
+endstr = 'end!'
 class Data(object):
     def __init__(self,msg,seq = 0,state = 0):
         self.msg = msg
@@ -38,11 +38,11 @@ class Gbn(object):
         self.sock = sock
     
     def push_data(self,path,port):
-        
+        socket_closed_flag = False
         time = 0
         seq = 0
         data_windows = []
-
+        read_file_end = False
         with open(path,'r') as file_handle:
             while True:
 
@@ -53,20 +53,27 @@ class Gbn(object):
 
                 while len(data_windows) <WINDOWS_LENGTH:
                     line = file_handle.readline().rstrip()
-                    if not line :
-                        return
+                    if not line or line=='':
+                        ##数据读取完毕
+                        if not read_file_end: 
+                            read_file_end = True
+                            sys.stdout.write('file read finished!\n')
+                        break
                     
                     data = Data(line,seq = seq)
                     data_windows.append(data)
                     seq += 1
 
                 if not data_windows:
+                    self.sock.sendto(str(endstr),(HOST,port))
+                    sys.stdout.write('client send endstr!')
                     break
                 
                 ##发送窗口中未发送的数据
                 for data in data_windows:
                     if not data.state:
                         self.sock.sendto(str(data),(HOST,port))
+                        sys.stdout.write('%s\n' %(data))
                         data.state = 1
                 ##监控socket是否有数据可接收
                 readable,writeable,errors = select.select([self.sock,],[],[],1)
@@ -75,18 +82,25 @@ class Gbn(object):
                     time = 0
 
                     message,address = self.sock.recvfrom(BUFFER_SIZE)
-
-                    sys.stdout.write("gbn ACK " + message +'\n')
+                    if message == endstr:
+                        self.sock.close()
+                        socket_closed_flag = True
+                        sys.stdout.write('close client')
+                        return
+                    sys.stdout.write("recv gbn ACK " + message +'\n')
                     
                     ##查看是ack的序号
                     for i in range(len(data_windows)):
                         if message == data_windows[i].seq:
+                            if i != 0:
+                                print('window move %d' %i)
                             data_windows = data_windows[i+1:]
                             break
                 else:
                     time += 1
-
-        self.sock.close()
+        if not socket_closed_flag:
+            sys.stdout.write('close client')
+            self.sock.close()
     
     def pull_data(self):
         #记录上一个ACK
@@ -99,7 +113,11 @@ class Gbn(object):
 
             if len(readable) > 0:
                 message,address = self.sock.recvfrom(BUFFER_SIZE)
-                
+                if message==endstr:
+                    sys.stdout.write(' recv endstr!\n')
+                    self.sock.sendto(endstr,address)
+                    self.sock.close()
+                    return
                 ack = int(message.split()[0])
                 ##假如有序收到.发回ack
                 if last_ack ==(ack - 1) % SEQ_LENGTH:
@@ -119,7 +137,6 @@ class Gbn(object):
                         data_windows.pop(0)
                 else:
                     self.sock.sendto(str(last_ack),address)
-        self.sock.close()
 
 
 class SR(object):

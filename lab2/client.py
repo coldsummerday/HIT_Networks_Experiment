@@ -20,10 +20,8 @@ def new_client_socket(client_port, protocol):
 
 if __name__ == '__main__':
 
-    # 接收方开启多线程
-    print(SERVER_PORT,CLIENT_PORT_EXTRA,type(SERVER_PORT),type(CLIENT_PORT_EXTRA))
-    thread.start_new_thread(server.new_server_socket, (SERVER_PORT_EXTRA, CLIENT_PORT_EXTRA, 'testdata/client_push.txt', Gbn))
+    #thread.start_new_thread(new_client_socket, (CLIENT_PORT_EXTRA, Gbn))
 
     # server.new_server_socket(SERVER_PORT_EXTRA, CLIENT_PORT_EXTRA, 'data/client_push.txt', Gbn)
-    new_client_socket(CLIENT_PORT, SR)
+    new_client_socket(CLIENT_PORT, Gbn)
 

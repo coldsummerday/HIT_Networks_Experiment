@@ -19,8 +19,8 @@ def new_server_socket(server_port, client_port, path, protocol):
 
 if __name__ == '__main__':
 
-    thread.start_new_thread(new_server_socket, (SERVER_PORT, CLIENT_PORT, 'testdata/server_push.txt', SR))
+    #thread.start_new_thread(new_server_socket, (SERVER_PORT, CLIENT_PORT, 'testdata/server_push.txt', Gbn))
 
-    # new_server_socket(SERVER_PORT, CLIENT_PORT, 'data/server_push.txt', Sr)
-    client.new_client_socket(CLIENT_PORT_EXTRA, Gbn)
+    new_server_socket(SERVER_PORT, CLIENT_PORT, 'testdata/server_push.txt', Gbn)
+    #client.new_client_socket(CLIENT_PORT_EXTRA, Gbn)
 
