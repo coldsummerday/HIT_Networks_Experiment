@@ -3,6 +3,7 @@ import socket
 import thread
 import client
 from util import *
+import threading
 
 
 def new_server_socket(server_port, client_port, path, protocol):
@@ -20,7 +21,8 @@ def new_server_socket(server_port, client_port, path, protocol):
 if __name__ == '__main__':
 
     #thread.start_new_thread(new_server_socket, (SERVER_PORT, CLIENT_PORT, 'testdata/server_push.txt', Gbn))
-
+    t = threading.Thread(target=client.new_client_socket,args=(SERVER_PORT_EXTRA,Gbn))
+    t.start()
     new_server_socket(SERVER_PORT, CLIENT_PORT, 'testdata/server_push.txt', Gbn)
     #client.new_client_socket(CLIENT_PORT_EXTRA, Gbn)
 

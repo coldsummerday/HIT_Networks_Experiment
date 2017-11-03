@@ -2,7 +2,7 @@
 import socket
 import thread
 import server
-
+import threading
 from util import *
 
 
@@ -20,8 +20,8 @@ def new_client_socket(client_port, protocol):
 
 if __name__ == '__main__':
 
-    #thread.start_new_thread(new_client_socket, (CLIENT_PORT_EXTRA, Gbn))
-
-    # server.new_server_socket(SERVER_PORT_EXTRA, CLIENT_PORT_EXTRA, 'data/client_push.txt', Gbn)
+    t = threading.Thread(target=server.new_server_socket,args=(CLIENT_PORT_EXTRA,SERVER_PORT_EXTRA,'testdata/client_push.txt',Gbn,))
+    t.start()
     new_client_socket(CLIENT_PORT, Gbn)
+
 
